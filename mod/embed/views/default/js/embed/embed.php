@@ -7,10 +7,8 @@ elgg.embed.init = function() {
 
 	// caches the current textarea id
 	$(".embed-control").live('click', function() {
-		var classes = $(this).attr('class');
-		var embedClass = classes.split(/[, ]+/).pop();
-		var textAreaId = embedClass.substr(embedClass.indexOf('embed-control-') + "embed-control-".length);
-		elgg.embed.textAreaId = textAreaId;
+		var textAreaId = /embed-control-(\S)+/.exec($(this).attr('class'))[0];
+		elgg.embed.textAreaId = textAreaId.substr("embed-control-".length);
 	});
 
 	// special pagination helper for lightbox
@@ -23,8 +21,6 @@ elgg.embed.init = function() {
 
 /**
  * Inserts data attached to an embed list item in textarea
- *
- * @todo generalize lightbox closing
  *
  * @param {Object} event
  * @return void
@@ -49,7 +45,7 @@ elgg.embed.insert = function(event) {
 echo elgg_view('embed/custom_insert_js');
 ?>
 
-	$.fancybox.close();
+	elgg.ui.lightbox.close();
 
 	event.preventDefault();
 };
@@ -67,6 +63,8 @@ echo elgg_view('embed/custom_insert_js');
  * @return bool
  */
 elgg.embed.submit = function(event) {
+	$('.embed-wrapper .elgg-form-file-upload').hide();
+	$('.embed-throbber').show();
 	
 	$(this).ajaxSubmit({
 		dataType : 'json',
@@ -82,6 +80,10 @@ elgg.embed.submit = function(event) {
 					var url = elgg.normalize_url('embed/tab/' + forward);
 					url = elgg.embed.addContainerGUID(url);
 					$('.embed-wrapper').parent().load(url);
+				} else {
+					// incorrect response, presumably an error has been displayed
+					$('.embed-throbber').hide();
+					$('.embed-wrapper .elgg-form-file-upload').show();
 				}
 			}
 		},
@@ -89,9 +91,6 @@ elgg.embed.submit = function(event) {
 			// @todo nothing for now
 		}
 	});
-
-	$('.elgg-form-file-upload').hide();
-	$('.embed-throbber').show();
 
 	// this was bubbling up the DOM causing a submission
 	event.preventDefault();

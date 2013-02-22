@@ -8,7 +8,6 @@
 The Wire
 *********************************/
 #thewire-textarea {
-	height: 40px;
 	padding: 6px;
 }
 #thewire-characters-remaining {
@@ -26,6 +25,9 @@ The Wire
 	margin:0;
 	text-align: right;
 	background: white;
+}
+.thewire-characters-remaining-warning {
+	color: #D40D12 !important;
 }
 .thewire-parent {
 	margin-left: 40px;

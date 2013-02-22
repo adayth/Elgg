@@ -49,7 +49,7 @@ em, i {
 ins {
 	text-decoration: none;
 }
-del {
+del, strike {
 	text-decoration:line-through;
 }
 strong, b {
@@ -132,6 +132,7 @@ p {
 .elgg-head:after,
 .elgg-foot:after,
 .elgg-col:after,
+.elgg-col-alt:after,
 .elgg-image-block:after {
 	content: ".";
 	display: block;
@@ -250,13 +251,7 @@ p {
 	border: 1px solid blue;
 	font-weight: bold;
 	padding: 3px 0px 3px 10px;
-
-	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
-	-moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
-
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
 .elgg-admin-notices a.elgg-admin-notice {
@@ -336,13 +331,39 @@ p {
 	color: white;
 	padding: 5px;
 	margin-bottom: 10px;
-	
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
 	border-radius: 3px;
 }
 .elgg-module-inline > .elgg-head h3 {
 	color: white;
+}
+.elgg-module-popup {
+	background-color: white;
+	border: 1px solid #ccc;	
+	z-index: 9999;
+	margin-bottom: 0;
+	padding: 5px;
+	border-radius: 6px;
+	box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5);
+}
+.elgg-module-popup > .elgg-head {
+	margin-bottom: 5px;
+}
+.elgg-module-popup > .elgg-head * {
+	color: #666;
+}
+.elgg-module-featured {
+	border: 1px solid #666;
+	border-radius: 6px;
+}
+.elgg-module-featured > .elgg-head {
+	padding: 5px;
+	background-color: #333;
+}
+.elgg-module-featured > .elgg-head * {
+	color: white;
+}
+.elgg-module-featured > .elgg-body {
+	padding: 10px;
 }
 
 /* ***************************************
@@ -435,9 +456,6 @@ input {
 	padding: 5px;
 	border: 1px solid #ccc;
 	color: #666;
-	
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 	margin: 0;
 }
@@ -448,9 +466,6 @@ input {
 .elgg-input-url,
 .elgg-input-plaintext {
 	width: 98%;
-}
-textarea {
-	height: 100px;
 }
 .elgg-input-thin {
 	width: 400px;
@@ -463,11 +478,7 @@ textarea {
 	font-size: 14px;
 	font-weight: bold;
 	text-decoration: none;
-
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
-
 	width: auto;
 	padding: 2px 4px;
 	cursor: pointer;
@@ -533,8 +544,6 @@ a.elgg-button {
 	border: 1px solid #ccc;
 	background-color: #eee;
 	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
 }
 .ui-datepicker-prev, .ui-datepicker-next {
 	position: absolute;
@@ -605,16 +614,10 @@ a.elgg-button {
 	background-color: white;
 	border: 1px solid #ccc;
 	overflow: hidden;
-
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 .ui-autocomplete .ui-menu-item {
 	padding: 0px 4px;
-
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 .ui-autocomplete .ui-menu-item:hover {
@@ -669,18 +672,11 @@ a.elgg-button {
 	width: 730px;
 	height: auto;
 	background-color: #dedede;
-
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
 .friendspicker-savebuttons {
 	background: white;
-
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
 	border-radius: 8px;
-
 	margin:0 10px 10px;
 }
 .friends-picker .friends-picker-container { /* long container used to house end-to-end panels. Width is calculated in JS  */
@@ -726,9 +722,6 @@ a.elgg-button {
 	display: block;
 	padding: 0;
 	width:20px;
-
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
 .tabHasContent {
@@ -779,11 +772,7 @@ a.elgg-button {
 }
 .friendspicker-members-table {
 	background: #dedede;
-
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
 	border-radius: 8px;
-
 	margin:10px 0 0;
 	padding:10px 10px 0;
 }
@@ -872,9 +861,6 @@ a.elgg-button {
 	text-decoration: none;
 	margin-bottom: 2px;
 	border: 1px solid #CCC;
-
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 .elgg-admin-sidebar-menu a:hover {
@@ -964,9 +950,6 @@ a.elgg-button {
 	border: solid 1px #E5E5E5;
 	border-color: #E5E5E5 #999 #999 #E5E5E5;
 	background-color: #FFF;
-
-	-webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.50);
-	-moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.50);
 	box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.50);
 }
 .elgg-menu-hover > li {
@@ -1130,7 +1113,7 @@ a.elgg-button {
 .elgg-module-widget {
 	background-color: #dedede;
 	padding: 1px;
-	margin: 0 5px 15px;
+	margin: 0 0 15px;
 	position: relative;
 }
 .elgg-module-widget:hover {
@@ -1188,46 +1171,30 @@ a.elgg-widget-collapsed:before {
 /* ***************************************
 	GRID
 *************************************** */
-.elgg-grid {}
-.elgg-col {
-	float: left;
+<?php $gutterWidthPercent = 1.6; /* 16px on a 1000px grid */ ?>
+
+.elgg-grid + .elgg-grid { margin-top: <?php echo $gutterWidthPercent; ?>%; }
+.elgg-col { float: left; margin-right: <?php echo $gutterWidthPercent; ?>%; }
+.elgg-col-alt { float: right; margin-left: <?php echo $gutterWidthPercent; ?>%; margin-right: 0; }
+.elgg-col-1of1 { float: none; margin: 0; }
+.elgg-col:last-child, .elgg-col-last { float: none; overflow: hidden; margin: 0; width: auto; }
+
+<?php
+
+for ($i = 2; $i <= 6; $i++) {
+	$gutters = $i - 1;
+	$columnWidthPercent = (100 - $gutters * $gutterWidthPercent)/$i;
+	for ($j = 1; $j < $i; $j++) {
+		if ($j > 1 && ($i/$j) === (int)($i/$j)) {
+			continue;
+		}
+
+		$widthPercent = $j * $columnWidthPercent + ($j - 1) * $gutterWidthPercent;
+		echo ".elgg-col-{$j}of{$i} { width: $widthPercent%; }\n";
+	}
 }
-.elgg-col-1of1 {
-	float: none;
-}
-.elgg-col-1of2 {
-	width: 50%;
-}
-.elgg-col-1of3 {
-	width: 33.33%;
-}
-.elgg-col-2of3 {
-	width: 66.66%;
-}
-.elgg-col-1of4 {
-	width: 25%;
-}
-.elgg-col-3of4 {
-	width: 75%;
-}
-.elgg-col-1of5 {
-	width: 20%;
-}
-.elgg-col-2of5 {
-	width: 40%;
-}
-.elgg-col-3of5 {
-	width: 60%;
-}
-.elgg-col-4of5 {
-	width: 80%;
-}
-.elgg-col-1of6 {
-	width: 16.66%;
-}
-.elgg-col-5of6 {
-	width: 83.33%;
-}
+
+?>
 
 /* ***************************************
 	ICONS
@@ -1238,6 +1205,10 @@ a.elgg-widget-collapsed:before {
 	height: 16px;
 	display: inline-block;
 	margin: 0 2px;
+	vertical-align: text-bottom;
+}
+.elgg-module .elgg-head .elgg-icon {
+	vertical-align: baseline;
 }
 .elgg-icon-delete:hover,
 .elgg-icon-delete-alt:hover {
@@ -1287,17 +1258,9 @@ a.elgg-widget-collapsed:before {
 	height: 25px;
 	
 	/* remove the border-radius if you don't want rounded avatars in supported browsers */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
 	border-radius: 3px;
 	
-	-moz-background-clip:  border;
 	background-clip:  border;
-
-	-webkit-background-size: 25px;
-	-khtml-background-size: 25px;
-	-moz-background-size: 25px;
-	-o-background-size: 25px;
 	background-size: 25px;
 }
 .elgg-avatar-small > a > img {
@@ -1305,17 +1268,8 @@ a.elgg-widget-collapsed:before {
 	height: 40px;
 	
 	/* remove the border-radius if you don't want rounded avatars in supported browsers */
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
-	
-	-moz-background-clip:  border;
 	background-clip:  border;
-
-	-webkit-background-size: 40px;
-	-khtml-background-size: 40px;
-	-moz-background-size: 40px;
-	-o-background-size: 40px;
 	background-size: 40px;
 }
 .elgg-avatar-medium > a > img {
@@ -1345,17 +1299,8 @@ a.elgg-widget-collapsed:before {
 	height: 25px;
 
 	/* remove the border-radius if you don't want rounded avatars in supported browsers */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
 	border-radius: 3px;
-
-	-moz-background-clip:  border;
-	background-clip:  border;
-
-	-webkit-background-size: 25px;
-	-khtml-background-size: 25px;
-	-moz-background-size: 25px;
-	-o-background-size: 25px;
+	background-clip: border;
 	background-size: 25px;
 }
 .elgg-avatar-small > a > img {
@@ -1363,17 +1308,9 @@ a.elgg-widget-collapsed:before {
 	height: 40px;
 
 	/* remove the border-radius if you don't want rounded avatars in supported browsers */
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 
-	-moz-background-clip:  border;
 	background-clip:  border;
-
-	-webkit-background-size: 40px;
-	-khtml-background-size: 40px;
-	-moz-background-size: 40px;
-	-o-background-size: 40px;
 	background-size: 40px;
 }
 .elgg-avatar-medium > a > img {
@@ -1392,9 +1329,6 @@ a.elgg-widget-collapsed:before {
 	border: 1px solid #999;
 	margin: 0 0 5px;
 	padding: 0 7px 4px 10px;
-
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 .elgg-plugin.elgg-state-draggable > .elgg-image-block .elgg-head {
@@ -1424,13 +1358,34 @@ a.elgg-widget-collapsed:before {
 	text-align: center;
 	background-color: white;
 	border: 1px solid #999;
-
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
 	border-radius: 8px;
 }
 .elgg-plugin-screenshot-lightbox h2 {
 	color: black;
+}
+.elgg-plugin-contributors {
+	list-style-position: inside;
+	list-style-type: circle;
+}
+.elgg-plugin-contributors li {
+	font-style: italic;
+}
+.elgg-plugin-contributors dl,
+.elgg-plugin-contributors dd {
+	display: inline;
+	padding-right: 5px
+}
+.elgg-plugin-contributors dt {
+	display: none;
+}
+.elgg-plugin-contributors dd:after {
+	content: ', ';
+}
+.elgg-plugin-contributors dd.elgg-plugin-contributor-name:after {
+	content: ' - ';
+}
+.elgg-plugin-contributors dd.elgg-plugin-contributor-description:after {
+	content: '';
 }
 .elgg-plugin.elgg-state-active {
 	background: white;
@@ -1452,15 +1407,12 @@ a.elgg-widget-collapsed:before {
 }
 .elgg-plugin-more {
 	background-color: #eee;
-
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
 	border-radius: 8px;
-
 	padding: 5px 10px;
 	margin: 4px 0;
 }
-ul.elgg-plugin-categories, ul.elgg-plugin-categories > li {
+ul.elgg-plugin-categories, ul.elgg-plugin-categories > li,
+ul.elgg-plugin-resources, ul.elgg-plugin-resources > li {
 	display: inline;
 }
 .elgg-plugin-category-bundled {
@@ -1508,6 +1460,12 @@ ul.elgg-plugin-categories, ul.elgg-plugin-categories > li {
 	line-height: 1.2em;
 	font-style: italic;
 	margin-bottom: 5px;
+}
+
+.elgg-text-help {
+	display: block;
+	font-size: 85%;
+	font-style: italic;
 }
 
 .elgg-longtext-control {

@@ -83,6 +83,18 @@ class ElggCoreEntityTest extends ElggCoreUnitTest {
 		$this->assertIdentical($this->entity->getTimeUpdated(), $this->entity->time_updated );
 	}
 
+	public function testElggEntitySubtypePropertyReturnsString() {
+		$test_subtype = 'test_subtype';
+		$obj = new ElggObject();
+		$obj->subtype = $test_subtype;
+		$guid = $obj->save();
+
+		invalidate_cache_for_entity($guid);
+
+		$obj = get_entity($guid);
+		$this->assertEqual($obj->subtype, $test_subtype);
+	}
+
 	public function testElggEntityGetAndSetMetaData() {
 		// ensure metadata not set
 		$this->assertNull($this->entity->get('non_existent'));
@@ -162,20 +174,20 @@ class ElggCoreEntityTest extends ElggCoreUnitTest {
 		$this->entity->non_existent = 'testing';
 
 		// save
-		$this->AssertEqual($this->entity->getGUID(), 0);
+		$this->assertEqual($this->entity->getGUID(), 0);
 		$guid = $this->entity->save();
-		$this->AssertNotEqual($guid, 0);
+		$this->assertNotEqual($guid, 0);
 
 		// check guid
-		$this->AssertEqual($this->entity->getGUID(), $guid);
+		$this->assertEqual($this->entity->getGUID(), $guid);
 		$attributes = $this->entity->expose_attributes();
-		$this->AssertEqual($attributes['guid'], $guid);
-		$this->AssertIdentical($ENTITY_CACHE[$guid], $this->entity);
+		$this->assertEqual($attributes['guid'], $guid);
+		$this->assertIdentical($ENTITY_CACHE[$guid], $this->entity);
 
 		// check metadata
 		$metadata = $this->entity->expose_metadata();
-		$this->AssertFalse(in_array('non_existent', $metadata));
-		$this->AssertEqual($this->entity->get('non_existent'), 'testing');
+		$this->assertFalse(in_array('non_existent', $metadata));
+		$this->assertEqual($this->entity->get('non_existent'), 'testing');
 
 		// clean up with delete
 		$this->assertIdentical(true, $this->entity->delete());
@@ -419,5 +431,13 @@ class ElggEntityTest extends ElggEntity {
 
 	public function expose_annotations() {
 		return $this->temp_annotations;
+	}
+
+	public function getDisplayName() {
+		return $this->title;
+	}
+
+	public function setDisplayName($displayName) {
+		$this->title = $displayName;
 	}
 }

@@ -3,6 +3,10 @@
  */
 var elgg = elgg || {};
 
+if (typeof define == 'function') {
+	define('elgg', [], function() { return elgg; });
+}
+
 /**
  * Pointer to the global context
  *
@@ -283,7 +287,7 @@ elgg.normalize_url = function(url) {
 	}
 
 	// 'javascript:'
-	else if (url.indexOf('javascript:') === 0) {
+	else if (url.indexOf('javascript:') === 0 || url.indexOf('mailto:') === 0 ) {
 		return url;
 	}
 
@@ -347,8 +351,12 @@ elgg.system_messages = function(msgs, delay, type) {
 
 	msgs.forEach(appendMessage);
 
-	$(messages_html.join('')).appendTo(systemMessages)
-		.animate({opacity: '1.0'}, delay).fadeOut('slow');
+	if (type != 'error') {
+		$(messages_html.join('')).appendTo(systemMessages)
+			.animate({opacity: '1.0'}, delay).fadeOut('slow');
+	} else {
+		$(messages_html.join('')).appendTo(systemMessages);
+	}
 };
 
 /**

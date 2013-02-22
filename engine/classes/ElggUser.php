@@ -106,37 +106,17 @@ class ElggUser extends ElggEntity
 	 * @return bool
 	 */
 	protected function load($guid) {
-		// Test to see if we have the generic stuff
-		if (!parent::load($guid)) {
+		$attr_loader = new ElggAttributeLoader(get_class(), 'user', $this->attributes);
+		$attr_loader->secondary_loader = 'get_user_entity_as_row';
+
+		$attrs = $attr_loader->getRequiredAttributes($guid);
+		if (!$attrs) {
 			return false;
 		}
 
-		// Only work with GUID from here
-		if ($guid instanceof stdClass) {
-			$guid = $guid->guid;
-		}
-
-		// Check the type
-		if ($this->attributes['type'] != 'user') {
-			$msg = elgg_echo('InvalidClassException:NotValidElggStar', array($guid, get_class()));
-			throw new InvalidClassException($msg);
-		}
-
-		// Load missing data
-		$row = get_user_entity_as_row($guid);
-		if (($row) && (!$this->isFullyLoaded())) {
-			// If $row isn't a cached copy then increment the counter
-			$this->attributes['tables_loaded']++;
-		}
-
-		// Now put these into the attributes array as core values
-		$objarray = (array) $row;
-		foreach ($objarray as $key => $value) {
-			$this->attributes[$key] = $value;
-		}
-
-		// guid needs to be an int  http://trac.elgg.org/ticket/4111
-		$this->attributes['guid'] = (int)$this->attributes['guid'];
+		$this->attributes = $attrs;
+		$this->attributes['tables_loaded'] = 2;
+		cache_entity($this);
 
 		return true;
 	}
@@ -159,7 +139,7 @@ class ElggUser extends ElggEntity
 			(guid, name, username, password, salt, email, language, code)
 			values ($guid, '$name', '$username', '$password', '$salt', '$email', '$language', '$code')";
 
-		$result = insert_data($query);
+		$result = $this->getDatabase()->insertData($query);
 		if ($result === false) {
 			// TODO(evan): Throw an exception here?
 			return false;
@@ -190,7 +170,7 @@ class ElggUser extends ElggEntity
 			email='$email', language='$language', code='$code'
 			WHERE guid = $guid";
 
-		return update_data($query) !== false;
+		return $this->getDatabase()->updateData($query) !== false;
 	}
 
 	/**
@@ -213,6 +193,16 @@ class ElggUser extends ElggEntity
 
 		// Delete entity
 		return parent::delete();
+	}
+
+	/** @override */
+	public function getDisplayName() {
+		return $this->name;
+	}
+
+	/** @override */
+	public function setDisplayName($displayName) {
+		$this->name = $displayName;
 	}
 
 	/**
@@ -567,6 +557,18 @@ class ElggUser extends ElggEntity
 	function getOwner() {
 		elgg_deprecated_notice("ElggUser::getOwner deprecated for ElggUser::getOwnerGUID", 1.8);
 		$this->getOwnerGUID();
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function prepareObject($object) {
+		$object = parent::prepareObject($object);
+		$object->name = $this->getDisplayName();
+		$object->username = $this->username;
+		$object->language = $this->language;
+		unset($object->read_access);
+		return $object;
 	}
 
 	// EXPORTABLE INTERFACE ////////////////////////////////////////////////////////////

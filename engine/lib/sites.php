@@ -18,11 +18,19 @@
 function elgg_get_site_entity($site_guid = 0) {
 	global $CONFIG;
 
+	$result = false;
+	
 	if ($site_guid == 0) {
-		return $CONFIG->site;
+		$site = $CONFIG->site;
+	} else {
+		$site = get_entity($site_guid);
+	}
+	
+	if ($site instanceof ElggSite) {
+		$result = $site;
 	}
 
-	return get_entity($site_guid);
+	return $result;
 }
 
 /**
@@ -40,7 +48,6 @@ function get_site_entity_as_row($guid) {
 	return get_data_row("SELECT * from {$CONFIG->dbprefix}sites_entity where guid=$guid");
 }
 
-
 /**
  * Add a user to a site.
  *
@@ -50,8 +57,6 @@ function get_site_entity_as_row($guid) {
  * @return bool
  */
 function add_site_user($site_guid, $user_guid) {
-	global $CONFIG;
-
 	$site_guid = (int)$site_guid;
 	$user_guid = (int)$user_guid;
 
@@ -82,8 +87,6 @@ function remove_site_user($site_guid, $user_guid) {
  * @return mixed
  */
 function add_site_object($site_guid, $object_guid) {
-	global $CONFIG;
-
 	$site_guid = (int)$site_guid;
 	$object_guid = (int)$object_guid;
 
@@ -124,8 +127,8 @@ function get_site_objects($site_guid, $subtype = "", $limit = 10, $offset = 0) {
 		'relationship' => 'member_of_site',
 		'relationship_guid' => $site_guid,
 		'inverse_relationship' => TRUE,
-		'types' => 'object',
-		'subtypes' => $subtype,
+		'type' => 'object',
+		'subtype' => $subtype,
 		'limit' => $limit,
 		'offset' => $offset
 	));
@@ -174,7 +177,7 @@ function get_site_domain($guid) {
 /**
  * Unit tests for sites
  *
- * @param sting  $hook   unit_test
+ * @param string $hook   unit_test
  * @param string $type   system
  * @param mixed  $value  Array of tests
  * @param mixed  $params Params

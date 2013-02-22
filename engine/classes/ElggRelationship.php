@@ -71,6 +71,7 @@ class ElggRelationship extends ElggData implements
 	 * Save the relationship
 	 *
 	 * @return int the relationship id
+	 * @throws IOException
 	 */
 	public function save() {
 		if ($this->id > 0) {
@@ -101,6 +102,20 @@ class ElggRelationship extends ElggData implements
 	 */
 	public function getURL() {
 		return get_relationship_url($this->id);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function toObject() {
+		$object = new stdClass();
+		$object->id = $this->id;
+		$object->subject_guid = $this->guid_one;
+		$object->relationship = $this->relationship;
+		$object->object_guid = $this->guid_two;
+		$object->time_created = date('c', $this->getTimeCreated());
+		$params = array('relationship' => $this);
+		return elgg_trigger_plugin_hook('to:object', 'relationship', $params, $object);
 	}
 
 	// EXPORTABLE INTERFACE ////////////////////////////////////////////////////////////
@@ -145,7 +160,7 @@ class ElggRelationship extends ElggData implements
 	 * @param ODD $data ODD data
 
 	 * @return bool
-	 * @throws ImportException
+	 * @throws ImportException|InvalidParameterException
 	 */
 	public function import(ODD $data) {
 		if (!($data instanceof ODDRelationship)) {
@@ -179,6 +194,8 @@ class ElggRelationship extends ElggData implements
 				return true;
 			}
 		}
+
+		return false;
 	}
 
 	// SYSTEM LOG INTERFACE ////////////////////////////////////////////////////////////

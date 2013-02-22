@@ -157,7 +157,7 @@ class ElggInstaller {
 			'password',
 		);
 		foreach ($requiredParams as $key) {
-			if (!array_key_exists($key, $params)) {
+			if (empty($params[$key])) {
 				$msg = elgg_echo('install:error:requiredfield', array($key));
 				throw new InstallationException($msg);
 			}
@@ -726,9 +726,20 @@ class ElggInstaller {
 
 		// bootstrapping with required files in a required order
 		$required_files = array(
-			'elgglib.php', 'autoloader.php', 'views.php', 'access.php', 'system_log.php', 'export.php',
-			'configuration.php', 'sessions.php', 'languages.php', 'pageowner.php',
-			'input.php', 'cache.php', 'output.php',
+			'autoloader.php',
+			'elgglib.php',
+			'views.php',
+			'access.php',
+			'system_log.php',
+			'export.php',
+			'configuration.php',
+			'database.php',
+			'sessions.php',
+			'languages.php',
+			'pageowner.php',
+			'input.php',
+			'cache.php',
+			'output.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -776,7 +787,7 @@ class ElggInstaller {
 
 			$lib_files = array(
 				// these want to be loaded first apparently?
-				'database.php', 'actions.php',
+				'autoloader.php', 'database.php', 'actions.php',
 
 				'admin.php', 'annotations.php',
 				'cron.php', 'entities.php',
@@ -788,7 +799,7 @@ class ElggInstaller {
 				'pam.php', 'plugins.php',
 				'private_settings.php', 'relationships.php', 'river.php',
 				'sites.php', 'statistics.php', 'tags.php', 'user_settings.php',
-				'users.php', 'upgrade.php', 'web_services.php',
+				'users.php', 'upgrade.php',
 				'widgets.php', 'xml.php', 'deprecated-1.7.php',
 				'deprecated-1.8.php', 'deprecated-1.9.php'
 			);
@@ -826,6 +837,8 @@ class ElggInstaller {
 		if (!isset($CONFIG)) {
 			$CONFIG = new stdClass;
 		}
+
+		$CONFIG->installer_running = true;
 
 		$CONFIG->wwwroot = $this->getBaseUrl();
 		$CONFIG->url = $CONFIG->wwwroot;
@@ -1426,6 +1439,7 @@ class ElggInstaller {
 		datalist_set('version', get_version());
 		datalist_set('simplecache_enabled', 1);
 		datalist_set('system_cache_enabled', 1);
+		datalist_set('simplecache_lastupdate', time());
 
 		// new installations have run all the upgrades
 		$upgrades = elgg_get_upgrade_files($submissionVars['path'] . 'engine/lib/upgrades/');
@@ -1519,22 +1533,27 @@ class ElggInstaller {
 	protected function createAdminAccount($submissionVars, $login = FALSE) {
 		global $CONFIG;
 
-		$guid = register_user(
-				$submissionVars['username'],
-				$submissionVars['password1'],
-				$submissionVars['displayname'],
-				$submissionVars['email']
-				);
+		try {
+			$guid = register_user(
+					$submissionVars['username'],
+					$submissionVars['password1'],
+					$submissionVars['displayname'],
+					$submissionVars['email']
+					);
+		} catch (Exception $e) {
+			register_error($e->getMessage());
+			return false;
+		}
 
 		if (!$guid) {
 			register_error(elgg_echo('install:admin:cannot_create'));
-			return FALSE;
+			return false;
 		}
 
 		$user = get_entity($guid);
 		if (!$user) {
 			register_error(elgg_echo('install:error:loadadmin'));
-			return FALSE;
+			return false;
 		}
 
 		elgg_set_ignore_access(TRUE);
@@ -1543,7 +1562,7 @@ class ElggInstaller {
 		} else {
 			datalist_set('admin_registered', 1);
 		}
-		elgg_set_ignore_access(FALSE);
+		elgg_set_ignore_access(false);
 
 		// add validation data to satisfy user validation plugins
 		create_metadata($guid, 'validated', TRUE, '', 0, ACCESS_PUBLIC);

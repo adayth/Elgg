@@ -5,7 +5,7 @@
  * @package ElggPages
  */
 
-$english = array(
+return array(
 
 	/**
 	 * Menu items and titles
@@ -61,6 +61,7 @@ View and comment on the new page:
 	'pages:title' => 'Page title',
 	'pages:description' => 'Page text',
 	'pages:tags' => 'Tags',
+	'pages:parent_guid' => 'Parent page',
 	'pages:access_id' => 'Read access',
 	'pages:write_access_id' => 'Write access',
 
@@ -109,5 +110,3 @@ View and comment on the new page:
 	'pages:newchild' => "Create a sub-page",
 	'pages:backtoparent' => "Back to '%s'",
 );
-
-add_translation("en", $english);

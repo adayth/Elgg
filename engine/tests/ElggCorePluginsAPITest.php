@@ -68,6 +68,9 @@ class ElggCorePluginsAPITest extends ElggCoreUnitTest {
 			'blurb' => 'A concise description.',
 			'description' => 'A longer, more interesting description.',
 			'website' => 'http://www.elgg.org/',
+			'repository' => 'https://github.com/Elgg/Elgg',
+			'bugtracker' => 'http://trac.elgg.org',
+			'donations' => 'http://elgg.org/supporter.php',
 			'copyright' => '(C) Elgg Foundation 2011',
 			'license' => 'GNU General Public License version 2',
 
@@ -87,6 +90,11 @@ class ElggCorePluginsAPITest extends ElggCoreUnitTest {
 			'screenshot' => array(
 				array('description' => 'Fun things to do 1', 'path' => 'graphics/plugin_ss1.png'),
 				array('description' => 'Fun things to do 2', 'path' => 'graphics/plugin_ss2.png'),
+			),
+			
+			'contributor' => array(
+				array('name' => 'Evan Winslow', 'email' => 'evan@elgg.org', 'website' => 'http://evanwinslow.com/', 'username' => 'ewinslow', 'description' => "Description of Evan's role in the project"),
+				array('name' => 'Cash Costello', 'email' => 'cash@elgg.org', 'description' => "Description of Cash's role in the project"),
 			),
 
 			'category' => array(
@@ -165,6 +173,21 @@ class ElggCorePluginsAPITest extends ElggCoreUnitTest {
 		$this->assertEqual($this->manifest18->getWebsite(), 'http://www.elgg.org/');
 		$this->assertEqual($this->manifest17->getWebsite(), 'http://www.elgg.org/');
 	}
+	
+	public function testElggPluginManifestGetRepository() {
+		$this->assertEqual($this->manifest18->getRepositoryURL(), 'https://github.com/Elgg/Elgg');
+		$this->assertEqual($this->manifest17->getRepositoryURL(), '');
+	}
+	
+		public function testElggPluginManifestGetBugtracker() {
+		$this->assertEqual($this->manifest18->getBugTrackerURL(), 'http://trac.elgg.org');
+		$this->assertEqual($this->manifest17->getBugTrackerURL(), '');
+	}
+	
+		public function testElggPluginManifestGetDonationsPage() {
+		$this->assertEqual($this->manifest18->getDonationsPageURL(), 'http://elgg.org/supporter.php');
+		$this->assertEqual($this->manifest17->getDonationsPageURL(), '');
+	}
 
 	public function testElggPluginManifestGetCopyright() {
 		$this->assertEqual($this->manifest18->getCopyright(), '(C) Elgg Foundation 2011');
@@ -234,6 +257,16 @@ class ElggCorePluginsAPITest extends ElggCoreUnitTest {
 
 		$this->assertIdentical($this->package18->getManifest()->getScreenshots(), $screenshots);
 		$this->assertIdentical($this->package17->getManifest()->getScreenshots(), array());
+	}
+	
+	public function testElggPluginManifestGetContributors() {
+		$contributors = array(
+			array('name' => 'Evan Winslow', 'email' => 'evan@elgg.org', 'website' => 'http://evanwinslow.com/', 'username' => 'ewinslow', 'description' => "Description of Evan's role in the project"),
+			array('name' => 'Cash Costello', 'email' => 'cash@elgg.org', 'website' => '', 'username' => '', 'description' => "Description of Cash's role in the project"),
+		);
+
+		$this->assertIdentical($this->package18->getManifest()->getContributors(), $contributors);
+		$this->assertIdentical($this->package17->getManifest()->getContributors(), array());
 	}
 
 	public function testElggPluginManifestGetProvides() {

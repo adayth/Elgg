@@ -69,9 +69,6 @@ blockquote {
 	margin:0px 0 15px 0;
 	background:#EBF5FF;
 	border:none;
-	
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
 
@@ -158,4 +155,5 @@ h6 { font-size: 0.8em; }
 }
 .elgg-output img {
 	max-width: 100%;
+	height: auto;
 }

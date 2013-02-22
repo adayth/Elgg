@@ -34,6 +34,8 @@ function get_day_end($day = null, $month = null, $year = null) {
 /**
  * Return the notable entities for a given time period.
  *
+ * @todo this function also accepts an array(type => subtypes) for 3rd arg. Should we document this?
+ *
  * @param int     $start_time     The start time as a unix timestamp.
  * @param int     $end_time       The end time as a unix timestamp.
  * @param string  $type           The type of entity (eg "user", "object" etc)
@@ -880,3 +882,325 @@ function leave_group($group_guid, $user_guid) {
 	return false;
 }
 
+/**
+ * Create paragraphs from text with line spacing
+ *
+ * @param string $string The string
+ * @return string
+ * @deprecated 1.9 Use elgg_autop instead
+ **/
+function autop($string) {
+	elgg_deprecated_notice('autop has been deprecated in favor of elgg_autop', '1.9');
+	return elgg_autop($string);
+}
+
+/**
+ * Register a function as a web service method
+ * 
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_expose_function().
+ */
+function expose_function($method, $function, array $parameters = NULL, $description = "",
+		$call_method = "GET", $require_api_auth = false, $require_user_auth = false) {
+	elgg_deprecated_notice("expose_function() deprecated for the function elgg_ws_expose_function() in web_services plugin", 1.9);
+	if (!elgg_admin_notice_exists("elgg:ws:1.9")) {
+		elgg_add_admin_notice("elgg:ws:1.9", "The web services are now a plugin in Elgg 1.9.
+			You must enable this plugin and update your web services to use elgg_ws_expose_function().");
+	}
+
+	if (function_exists("elgg_ws_expose_function")) {
+		return elgg_ws_expose_function($method, $function, $parameters, $description, $call_method, $require_api_auth, $require_user_auth);
+	}
+}
+
+/**
+ * Unregister a web services method
+ *
+ * @param string $method The api name that was exposed
+ * @return void
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_unexpose_function().
+ */
+function unexpose_function($method) {
+	elgg_deprecated_notice("unexpose_function() deprecated for the function elgg_ws_unexpose_function() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_unexpose_function")) {
+		return elgg_ws_unexpose_function($method);
+	}
+}
+
+/**
+ * Registers a web services handler
+ *
+ * @param string $handler  Web services type
+ * @param string $function Your function name
+ * @return bool Depending on success
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_register_service_handler().
+ */
+function register_service_handler($handler, $function) {
+	elgg_deprecated_notice("register_service_handler() deprecated for the function elgg_ws_register_service_handler() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_register_service_handler")) {
+		return elgg_ws_register_service_handler($handler, $function);
+	}
+}
+
+/**
+ * Remove a web service
+ * To replace a web service handler, register the desired handler over the old on
+ * with register_service_handler().
+ *
+ * @param string $handler web services type
+ * @return void
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_unregister_service_handler().
+ */
+function unregister_service_handler($handler) {
+	elgg_deprecated_notice("unregister_service_handler() deprecated for the function elgg_ws_unregister_service_handler() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_unregister_service_handler")) {
+		return elgg_ws_unregister_service_handler($handler);
+	}
+}
+
+/**
+ * Create or update the entities table for a given site.
+ * Call create_entity first.
+ *
+ * @param int    $guid        Site GUID
+ * @param string $name        Site name
+ * @param string $description Site Description
+ * @param string $url         URL of the site
+ *
+ * @return bool
+ * @access private
+ * @deprecated 1.9 Use ElggSite constructor
+ */
+function create_site_entity($guid, $name, $description, $url) {
+	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use ElggSite constructor', 1.9);
+	global $CONFIG;
+
+	$guid = (int)$guid;
+	$name = sanitise_string($name);
+	$description = sanitise_string($description);
+	$url = sanitise_string($url);
+
+	$row = get_entity_as_row($guid);
+
+	if ($row) {
+		// Exists and you have access to it
+		$query = "SELECT guid from {$CONFIG->dbprefix}sites_entity where guid = {$guid}";
+		if ($exists = get_data_row($query)) {
+			$query = "UPDATE {$CONFIG->dbprefix}sites_entity
+				set name='$name', description='$description', url='$url' where guid=$guid";
+			$result = update_data($query);
+
+			if ($result != false) {
+				// Update succeeded, continue
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('update', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+					//delete_entity($guid);
+				}
+			}
+		} else {
+			// Update failed, attempt an insert.
+			$query = "INSERT into {$CONFIG->dbprefix}sites_entity
+				(guid, name, description, url) values ($guid, '$name', '$description', '$url')";
+			$result = insert_data($query);
+
+			if ($result !== false) {
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('create', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+					//delete_entity($guid);
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Create or update the entities table for a given group.
+ * Call create_entity first.
+ *
+ * @param int    $guid        GUID
+ * @param string $name        Name
+ * @param string $description Description
+ *
+ * @return bool
+ * @access private
+ * @deprecated 1.9 Use ElggGroup constructor
+ */
+function create_group_entity($guid, $name, $description) {
+	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use ElggGroup constructor', 1.9);
+	global $CONFIG;
+
+	$guid = (int)$guid;
+	$name = sanitise_string($name);
+	$description = sanitise_string($description);
+
+	$row = get_entity_as_row($guid);
+
+	if ($row) {
+		// Exists and you have access to it
+		$exists = get_data_row("SELECT guid from {$CONFIG->dbprefix}groups_entity WHERE guid = {$guid}");
+		if ($exists) {
+			$query = "UPDATE {$CONFIG->dbprefix}groups_entity set"
+				. " name='$name', description='$description' where guid=$guid";
+			$result = update_data($query);
+			if ($result != false) {
+				// Update succeeded, continue
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('update', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+				}
+			}
+		} else {
+			// Update failed, attempt an insert.
+			$query = "INSERT into {$CONFIG->dbprefix}groups_entity"
+				. " (guid, name, description) values ($guid, '$name', '$description')";
+
+			$result = insert_data($query);
+			if ($result !== false) {
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('create', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Create or update the entities table for a given user.
+ * Call create_entity first.
+ *
+ * @param int    $guid     The user's GUID
+ * @param string $name     The user's display name
+ * @param string $username The username
+ * @param string $password The password
+ * @param string $salt     A salt for the password
+ * @param string $email    The user's email address
+ * @param string $language The user's default language
+ * @param string $code     A code
+ *
+ * @return bool
+ * @access private
+ * @deprecated 1.9 Use ElggUser constructor
+ */
+function create_user_entity($guid, $name, $username, $password, $salt, $email, $language, $code) {
+	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use ElggUser constructor', 1.9);
+	global $CONFIG;
+
+	$guid = (int)$guid;
+	$name = sanitise_string($name);
+	$username = sanitise_string($username);
+	$password = sanitise_string($password);
+	$salt = sanitise_string($salt);
+	$email = sanitise_string($email);
+	$language = sanitise_string($language);
+	$code = sanitise_string($code);
+
+	$row = get_entity_as_row($guid);
+	if ($row) {
+		// Exists and you have access to it
+		$query = "SELECT guid from {$CONFIG->dbprefix}users_entity where guid = {$guid}";
+		if ($exists = get_data_row($query)) {
+			$query = "UPDATE {$CONFIG->dbprefix}users_entity
+				SET name='$name', username='$username', password='$password', salt='$salt',
+				email='$email', language='$language', code='$code'
+				WHERE guid = $guid";
+
+			$result = update_data($query);
+			if ($result != false) {
+				// Update succeeded, continue
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('update', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+				}
+			}
+		} else {
+			// Exists query failed, attempt an insert.
+			$query = "INSERT into {$CONFIG->dbprefix}users_entity
+				(guid, name, username, password, salt, email, language, code)
+				values ($guid, '$name', '$username', '$password', '$salt', '$email', '$language', '$code')";
+
+			$result = insert_data($query);
+			if ($result !== false) {
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('create', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Create or update the extras table for a given object.
+ * Call create_entity first.
+ *
+ * @param int    $guid        The guid of the entity you're creating (as obtained by create_entity)
+ * @param string $title       The title of the object
+ * @param string $description The object's description
+ *
+ * @return bool
+ * @access private
+ * @deprecated 1.9 Use ElggObject constructor
+ */
+function create_object_entity($guid, $title, $description) {
+	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use ElggObject constructor', 1.9);
+	global $CONFIG;
+
+	$guid = (int)$guid;
+	$title = sanitise_string($title);
+	$description = sanitise_string($description);
+
+	$row = get_entity_as_row($guid);
+
+	if ($row) {
+		// Core entities row exists and we have access to it
+		$query = "SELECT guid from {$CONFIG->dbprefix}objects_entity where guid = {$guid}";
+		if ($exists = get_data_row($query)) {
+			$query = "UPDATE {$CONFIG->dbprefix}objects_entity
+				set title='$title', description='$description' where guid=$guid";
+
+			$result = update_data($query);
+			if ($result != false) {
+				// Update succeeded, continue
+				$entity = get_entity($guid);
+				elgg_trigger_event('update', $entity->type, $entity);
+				return $guid;
+			}
+		} else {
+			// Update failed, attempt an insert.
+			$query = "INSERT into {$CONFIG->dbprefix}objects_entity
+				(guid, title, description) values ($guid, '$title','$description')";
+
+			$result = insert_data($query);
+			if ($result !== false) {
+				$entity = get_entity($guid);
+				if (elgg_trigger_event('create', $entity->type, $entity)) {
+					return $guid;
+				} else {
+					$entity->delete();
+				}
+			}
+		}
+	}
+
+	return false;
+}

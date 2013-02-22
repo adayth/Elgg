@@ -3,10 +3,6 @@
  * Page shell for theme preview
  */
 
-$elgg = elgg_get_simplecache_url('css', 'elgg');
-$ie_url = elgg_get_simplecache_url('css', 'ie');
-$ie6_url = elgg_get_simplecache_url('css', 'ie6');
-
 // Set the content type
 header("Content-type: text/html; charset=UTF-8");
 
@@ -18,9 +14,19 @@ header("Content-type: text/html; charset=UTF-8");
 </head>
 <body>
 <div class="elgg-page elgg-page-default">
+	<div class="elgg-page-messages">
+		<ul class="elgg-system-messages">
+			<li class="hidden"></li>
+		</ul>
+	</div>
 	<div class="elgg-page-header">
 		<div class="elgg-inner">
 			<h1 class="elgg-heading-site">Theme Sandbox</h1>
+			<?php
+				if (get_input("site_menu", false)) {
+					echo elgg_view_menu('site');
+				}
+			?>
 		</div>
 	</div>
 	<div class="elgg-page-body">

@@ -8,8 +8,8 @@ $user = elgg_get_page_owner_entity();
 
 $profile_fields = elgg_get_config('profile_fields');
 
-echo '<div id="profile-details" class="elgg-body pll">';
-echo "<h2>{$user->name}</h2>";
+echo '<div id="profile-details" class="elgg-body pll h-card vcard">';
+echo "<h2 class=\"p-name fn\">{$user->name}</h2>";
 
 echo elgg_view("profile/status", array("entity" => $user));
 
@@ -28,7 +28,7 @@ if (is_array($profile_fields) && sizeof($profile_fields) > 0) {
 			<div class="<?php echo $even_odd; ?>">
 				<b><?php echo elgg_echo("profile:{$shortname}"); ?>: </b>
 				<?php
-					echo elgg_view("output/{$valtype}", array('value' => $user->$shortname));
+					echo elgg_view("output/{$valtype}", array('value' => $value));
 				?>
 			</div>
 			<?php

@@ -113,6 +113,17 @@ class ElggPluginManifest {
 		'description' => '',
 		'path' => ''
 	);
+	
+	/**
+	 * The expected structure of a contributor element
+	 */
+	private $contributorStruct = array(
+		'name' => '',
+		'email' => '',
+		'website' => '',
+		'username' => '',
+		'description' => '',
+	);
 
 	/**
 	 * The API version of the manifest.
@@ -143,7 +154,7 @@ class ElggPluginManifest {
 		}
 
 		// see if we need to construct the xml object.
-		if ($manifest instanceof XmlElement) {
+		if ($manifest instanceof ElggXMLElement) {
 			$manifest_obj = $manifest;
 		} else {
 			$raw_xml = '';
@@ -301,6 +312,32 @@ class ElggPluginManifest {
 		}
 	}
 
+	/**
+	 * Returns the repository url
+	 *
+	 * @return string
+	 */
+	public function getRepositoryURL() {
+		return $this->parser->getAttribute('repository');
+	}
+
+	/**
+	 * Returns the bug tracker page
+	 *
+	 * @return string
+	 */
+	public function getBugTrackerURL() {
+		return $this->parser->getAttribute('bugtracker');
+	}
+
+	/**
+	 * Returns the donations page
+	 *
+	 * @return string
+	 */
+	public function getDonationsPageURL() {
+		return $this->parser->getAttribute('donations');
+	}
 
 	/**
 	 * Returns the version of the plugin.
@@ -344,13 +381,13 @@ class ElggPluginManifest {
 	 * @return array
 	 */
 	public function getCategories() {
-		$bundled_plugins = array('blog', 'bookmarks', 'categories',
+		$bundled_plugins = array('blog', 'bookmarks', 'categories', 'ckeditor',
 			'custom_index', 'dashboard', 'developers', 'diagnostics',
 			'embed', 'externalpages', 'file', 'garbagecollector',
 			'groups', 'htmlawed', 'invitefriends', 'likes',
 			'logbrowser', 'logrotate', 'members', 'messageboard',
 			'messages', 'notifications', 'oauth_api', 'pages', 'profile',
-			'reportedcontent', 'search', 'tagcloud', 'thewire', 'tinymce',
+			'reportedcontent', 'search', 'tagcloud', 'thewire',
 			'twitter', 'twitter_api', 'uservalidationbyemail', 'zaudio',
 		);
 
@@ -382,6 +419,26 @@ class ElggPluginManifest {
 		$normalized = array();
 		foreach ($ss as $s) {
 			$normalized[] = $this->buildStruct($this->screenshotStruct, $s);
+		}
+
+		return $normalized;
+	}
+	
+	/**
+	 * Return the contributors listed.
+	 *
+	 * @return array
+	 */
+	public function getContributors() {
+		$ss = $this->parser->getAttribute('contributor');
+
+		if (!$ss) {
+			$ss = array();
+		}
+
+		$normalized = array();
+		foreach ($ss as $s) {
+			$normalized[] = $this->buildStruct($this->contributorStruct, $s);
 		}
 
 		return $normalized;

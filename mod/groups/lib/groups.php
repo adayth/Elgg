@@ -12,7 +12,9 @@ function groups_handle_all_page() {
 	elgg_pop_breadcrumb();
 	elgg_push_breadcrumb(elgg_echo('groups'));
 
-	elgg_register_title_button();
+	if (elgg_get_plugin_setting('limited_groups', 'groups') != 'yes' || elgg_is_admin_logged_in()) {
+		elgg_register_title_button();
+	}
 
 	$selected_tab = get_input('filter', 'newest');
 
@@ -77,7 +79,7 @@ function groups_search_page() {
 	$params = array(
 		'metadata_name' => 'interests',
 		'metadata_value' => $tag,
-		'types' => 'group',
+		'type' => 'group',
 		'full_view' => FALSE,
 	);
 	$content = elgg_list_entities_from_metadata($params);
@@ -149,13 +151,17 @@ function groups_handle_mine_page() {
 	elgg_push_breadcrumb($title);
 
 	elgg_register_title_button();
+	
+	$dbprefix = elgg_get_config('dbprefix');
 
-	$content = elgg_list_entities_from_relationship_count(array(
+	$content = elgg_list_entities_from_relationship(array(
 		'type' => 'group',
 		'relationship' => 'member',
 		'relationship_guid' => elgg_get_page_owner_guid(),
 		'inverse_relationship' => false,
 		'full_view' => false,
+		'joins' => array("JOIN {$dbprefix}groups_entity ge ON e.guid = ge.guid"),
+		'order_by' => 'ge.name asc'
 	));
 	if (!$content) {
 		$content = elgg_echo('groups:none');
@@ -184,7 +190,11 @@ function groups_handle_edit_page($page, $guid = 0) {
 		elgg_set_page_owner_guid(elgg_get_logged_in_user_guid());
 		$title = elgg_echo('groups:add');
 		elgg_push_breadcrumb($title);
-		$content = elgg_view('groups/edit');
+		if (elgg_get_plugin_setting('limited_groups', 'groups') != 'yes' || elgg_is_admin_logged_in()) {
+			$content = elgg_view('groups/edit');
+		} else {
+			$content = elgg_echo('groups:cantcreate');
+		}
 	} else {
 		$title = elgg_echo("groups:edit");
 		$group = get_entity($guid);
@@ -258,14 +268,33 @@ function groups_handle_profile_page($guid) {
 	groups_register_profile_buttons($group);
 
 	$content = elgg_view('groups/profile/layout', array('entity' => $group));
-	if (group_gatekeeper(false)) {
-		$sidebar = '';
+	$sidebar = '';
+
+	if (group_gatekeeper(false)) {	
 		if (elgg_is_active_plugin('search')) {
 			$sidebar .= elgg_view('groups/sidebar/search', array('entity' => $group));
 		}
 		$sidebar .= elgg_view('groups/sidebar/members', array('entity' => $group));
-	} else {
-		$sidebar = '';
+
+		$subscribed = false;
+		if (elgg_is_active_plugin('notifications')) {
+			global $NOTIFICATION_HANDLERS;
+			
+			foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
+				$relationship = check_entity_relationship(elgg_get_logged_in_user_guid(),
+						'notify' . $method, $guid);
+				
+				if ($relationship) {
+					$subscribed = true;
+					break;
+				}
+			}
+		}
+		
+		$sidebar .= elgg_view('groups/sidebar/my_status', array(
+			'entity' => $group,
+			'subscribed' => $subscribed
+		));
 	}
 
 	$params = array(
@@ -345,7 +374,7 @@ function groups_handle_members_page($guid) {
 		'relationship' => 'member',
 		'relationship_guid' => $group->guid,
 		'inverse_relationship' => true,
-		'types' => 'user',
+		'type' => 'user',
 		'limit' => 20,
 	));
 
@@ -490,4 +519,66 @@ function groups_register_profile_buttons($group) {
 			));
 		}
 	}
+}
+
+/**
+ * Prepares variables for the group edit form view.
+ *
+ * @param mixed $group ElggGroup or null. If a group, uses values from the group.
+ * @return array
+ */
+function groups_prepare_form_vars($group = null) {
+	$values = array(
+		'name' => '',
+		'membership' => ACCESS_PUBLIC,
+		'vis' => ACCESS_PUBLIC,
+		'guid' => null,
+		'entity' => null
+	);
+
+	// handle customizable profile fields
+	$fields = elgg_get_config('group');
+
+	if ($fields) {
+		foreach ($fields as $name => $type) {
+			$values[$name] = '';
+		}
+	}
+
+	// handle tool options
+	$tools = elgg_get_config('group_tool_options');
+	if ($tools) {
+		foreach ($tools as $group_option) {
+			$option_name = $group_option->name . "_enable";
+			$values[$option_name] = $group_option->default_on ? 'yes' : 'no';
+		}
+	}
+
+	// get current group settings
+	if ($group) {
+		foreach (array_keys($values) as $field) {
+			if (isset($group->$field)) {
+				$values[$field] = $group->$field;
+			}
+		}
+
+		if ($group->access_id != ACCESS_PUBLIC && $group->access_id != ACCESS_LOGGED_IN) {
+			// group only access - this is done to handle access not created when group is created
+			$values['vis'] = ACCESS_PRIVATE;
+		}
+
+		$values['entity'] = $group;
+	}
+
+	// get any sticky form settings
+	if (elgg_is_sticky_form('groups')) {
+		$sticky_values = elgg_get_sticky_values('groups');
+		foreach ($sticky_values as $key => $value) {
+			$values[$key] = $value;
+		}
+	}
+
+	elgg_clear_sticky_form('groups');
+
+	return $values;
 }

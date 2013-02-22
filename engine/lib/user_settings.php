@@ -267,6 +267,10 @@ function elgg_set_user_default_access() {
 function usersettings_pagesetup() {
 	$user = elgg_get_page_owner_entity();
 
+	if (!$user) {
+		return;
+	}
+
 	$params = array(
 		'name' => '1_account',
 		'text' => elgg_echo('usersettings:user:opt:linktext'),
@@ -336,6 +340,7 @@ function usersettings_page_handler($page) {
 		require $path;
 		return true;
 	}
+	return false;
 }
 
 /**

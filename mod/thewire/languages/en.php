@@ -3,7 +3,7 @@
  * The Wire English language file
  */
 
-$english = array(
+return array(
 
 	/**
 	 * Menu items and titles
@@ -21,7 +21,6 @@ $english = array(
 	'item:object:thewire' => "Wire posts",
 	'thewire:update' => 'Update',
 	'thewire:by' => 'Wire post by %s',
-
 	'thewire:previous' => "Previous",
 	'thewire:hide' => "Hide",
 	'thewire:previous:help' => "View previous post",
@@ -30,8 +29,8 @@ $english = array(
 	/**
 	 * The wire river
 	 */
-	'river:create:object:thewire' => "%s posted to the %s",
-	'thewire:wire' => 'wire',
+	'river:create:object:thewire' => "%s posted to %s",
+	'thewire:wire' => 'the wire',
 
 	/**
 	 * Wire widget
@@ -56,6 +55,9 @@ $english = array(
 	'thewire:notify:reply' => '%s responded to %s on the wire:',
 	'thewire:notify:post' => '%s posted on the wire:',
 
+	/**
+	 * Settings
+	 */
+	'thewire:settings:limit' => "Maximum number of characters for wire messages:",
+	'thewire:settings:limit:none' => "No limit",
 );
-
-add_translation("en", $english);
