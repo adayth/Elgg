@@ -221,6 +221,7 @@ function elgg_delete_river(array $options = array()) {
  *   object_guids         => INT|ARR Object guid(s)
  *   annotation_ids       => INT|ARR The identifier of the annotation(s)
  *   action_types         => STR|ARR The river action type(s) identifier
+ *   views                => STR|ARR River view(s)
  *   posted_time_lower    => INT     The lower bound on the time posted
  *   posted_time_upper    => INT     The upper bound on the time posted
  *
@@ -252,6 +253,7 @@ function elgg_get_river(array $options = array()) {
 		'object_guids'         => ELGG_ENTITIES_ANY_VALUE,
 		'annotation_ids'       => ELGG_ENTITIES_ANY_VALUE,
 		'action_types'         => ELGG_ENTITIES_ANY_VALUE,
+        'views'                => elgg_river_get_valid_views(),
 
 		'relationship'         => NULL,
 		'relationship_guid'    => NULL,
@@ -287,6 +289,7 @@ function elgg_get_river(array $options = array()) {
 	$wheres[] = elgg_get_guid_based_where_sql('rv.object_guid', $options['object_guids']);
 	$wheres[] = elgg_get_guid_based_where_sql('rv.annotation_id', $options['annotation_ids']);
 	$wheres[] = elgg_river_get_action_where_sql($options['action_types']);
+    $wheres[] = elgg_river_get_view_where_sql($options['views']);
 	$wheres[] = elgg_get_river_type_subtype_where_sql('rv', $options['types'],
 		$options['subtypes'], $options['type_subtype_pairs']);
 
@@ -590,6 +593,39 @@ function elgg_river_get_action_where_sql($types) {
 
 	$type_str = implode("','", $types_sanitized);
 	return "(rv.action_type IN ('$type_str'))";
+}
+
+/**
+ * Cache valid river views in memory once loaded.
+ *
+ * @global array $RIVER_VALID_VIEWS_CACHE
+ * @access private
+ */
+global $RIVER_VALID_VIEWS_CACHE;
+$RIVER_VALID_VIEWS_CACHE = NULL;
+
+/**
+ * Get valid river view list
+ *
+ * @return array
+ * @since 1.8.0
+ * @access private
+ */
+function elgg_river_get_valid_views() {
+    global $CONFIG, $RIVER_VALID_VIEWS_CACHE;
+
+    if ($RIVER_VALID_VIEWS_CACHE === NULL) {
+        $RIVER_VALID_VIEWS_CACHE = array();
+        $river_views = get_data("SELECT DISTINCT view FROM {$CONFIG->dbprefix}river");
+        foreach ($river_views as $view) {
+            if (elgg_view_exists($view->view)) {
+                $RIVER_VALID_VIEWS_CACHE[] = $view->view;
+            }
+        }
+        unset($river_views);
+    }
+
+    return $RIVER_VALID_VIEWS_CACHE;
 }
 
 /**
